@@ -1,1 +1,197 @@
-Hello world
+<html>
+    <head>
+        <style>
+            select {width: 300;}
+
+            #selectors {
+                background-color: aqua;
+            }
+
+            #selectedUsers {
+                background-color:chocolate;
+            }
+
+            #input {
+                background-color:darkslateblue;
+                float: left;
+            }
+
+            #graph {
+                background-color:cornflowerblue;
+                float: left;
+            }
+        </style>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+        <script type="text/javascript">
+            var apiGetUsers = "https://turotrackerfetcher.azurewebsites.net/api/users?code=W0cY9erJuRhGLxSra7jDufItw6SRNnkPaHCw7pzmnLrRO9xa2Uln2w==";
+            var apiGetClubs = "https://turotrackerfetcher.azurewebsites.net/api/clubs?code=15OpgjQl5HA4uYALGRZxvc7peWwBIjdHe32wJtD3ASRkgAiFRzKqfA==";
+            
+            var selectedUserIDs = [];
+            var selectedClub = 0;
+
+            var users = {};
+            var clubs = {};
+
+            var data = {};
+            var mode = 1; 
+
+            $(document).ready( function() {
+              $.get(apiGetUsers, function ( data ) {
+                data.forEach( (user, index) => users[user.userID] = user);
+                $.each(data, function(i, p) {
+                    $('#selectUser').append($('<option></option>').val(p.userID).html(p.name));
+                });
+              });
+              
+              $.get(apiGetClubs, function ( data ) {
+                data.forEach( (club, index) => clubs[club.clubID] = club);
+                clubs[0] = {clubID: 0, name: "Total"}
+                $.each(data, function(i, p) {
+                    $('#selectClub').append($('<option></option>').val(p.clubID).html(p.name));
+                });
+              });
+            });
+
+            function clubSelected(selector) {
+                var clubID = parseInt(selector.options[selector.selectedIndex].value);
+                if  (clubID  == -1 || clubID == selectedClub)
+                {
+                    selector.selectedIndex = 0;
+                    return;
+                }
+
+                selectedClub = clubID;
+                userData = {}
+                selectedUserIDs.forEach( (userID, index) => getDataForUser(userID));
+            }
+
+            function userSelected(selector) {
+                var userID = parseInt(selector.options[selector.selectedIndex].value);
+                if  (userID  == -1)
+                {
+                    selector.selectedIndex = 0;
+                    return;
+                }
+                
+                var index = selectedUserIDs.indexOf(userID);
+                if (index != -1)
+                {
+                    selector.selectedIndex = 0;
+                    return;
+                }
+
+                selectedUserIDs.push(userID);
+                selector.selectedIndex = 0;
+
+                var name = users[userID].name;
+                $('#selectedUsers').append($('<div></div>').attr("UserID",userID).attr("onclick","removeUser(this)").html(name));
+
+                getDataForUser(userID);
+            }
+
+            function modeSelected(selector) {
+                var newMode = parseInt(selector.options[selector.selectedIndex].value);
+                if  (newMode == mode)
+                {
+                    return;
+                }
+                
+                mode = newMode;
+                dataUpdated();
+            }
+
+            function getDataForUser(userID)
+            {
+                if  (selectedClub == null)
+                {
+                    return;
+                }
+
+                console.log(`Getting data for user [${userID}] in club [${selectedClub}]`)
+                var url = `https://turotrackerfetcher.azurewebsites.net/api/scores/${selectedClub}/${userID}?code=D2DC7NmU0RuGdoKvH6VFfDAaPDkM5Zy9SxXyNZkOoP8uQfoJ8/6wKA==`
+
+                $.get(url, function ( userData ) {
+                    data[userID] = userData;
+                    dataUpdated();
+                });
+            }
+
+            function removeUser(userItem) {
+                var userID = parseInt($(userItem).attr("userid"));
+                
+                var index = selectedUserIDs.indexOf(userID);
+                if (index != -1)
+                {
+                    selectedUserIDs.splice(index, 1);
+                }
+
+                userItem.remove();
+                delete data[userID];
+                dataUpdated();
+            }
+
+            function dataUpdated()
+            {
+                if  (selectedClub == null)
+                {
+                    return;
+                }
+                
+                $("#graphTitle").text(clubs[selectedClub].name);
+
+                var graphData = $("#graphData");
+                graphData.empty();
+                for (var key in data)
+                {
+                    var userData = data[key];
+                    var userValues;
+                    if (mode == 4) { userValues = userData.map(ud => ud.rankPunches) }
+                    else if (mode == 3) { userValues = userData.map(ud => ud.rankPoints) }
+                    else if (mode == 2) { userValues = userData.map(ud => ud.punches) }
+                    else { userValues = userData.map(ud => {var d = new Date(ud.date); return `${d.getMonth()}.${d.getDate()}:${ud.points}`} ) }
+
+                    graphData.append($("<div></div>").attr("userID", key).text(`${users[key].name}: ${userValues.join(', ')}`));
+                }
+            }
+        </script>
+    </head>
+    <body>
+        <div id="input">
+            <div id="selectors">
+                <div id="selectClubDiv">
+                    <select id="selectClub" onchange="clubSelected(this)">
+                        <option Value="0">Total</option>
+                        <option Value="-1">-----------</option>
+                    </select>
+                </div>
+
+                <div id="selectUserDiv">
+                    <select id="selectUser" onchange="userSelected(this)">
+                        <option Value="-1">Select Users</option>
+                        <option Value="-1">------------</option>
+                    </select>
+                </div>
+                
+                <div id="selectModeDiv">
+                    <select id="selectMode" onchange="modeSelected(this)">
+                        <option Value="1">Score</option>
+                        <option Value="2">Punches</option>
+                        <option Value="3">Rank - Score</option>
+                        <option Value="4">Rank - Punches</option>
+                    </select>
+                </div>
+            </div>
+
+            <div id="selectedUsers">
+                Selected Users:
+            </div>
+        </div>
+        
+        <div id="graph">
+            <div id="graphTitle">
+            </div>
+            <div id="graphData">
+            </div>
+        </div>
+    </body>
+</html>
