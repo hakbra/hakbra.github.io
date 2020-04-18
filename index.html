@@ -33,8 +33,58 @@
 
             var data = {};
             var mode = 1;
+            var loaded = false;
 
             var graph = null;
+
+            var urlParams = null;
+
+            function urlParamsUpdated()
+            {
+                if (urlParams == null)
+                {
+                    return;
+                }
+
+                var loc = window.location;
+                var url = `${loc.origin}${loc.pathname}?${urlParams.toString()}`
+                console.log(url)
+                history.replaceState(null, '', url);
+            }
+
+            function parseUrl()
+            {
+                if (!loaded)
+                {
+                    console.log("data not loaded")
+                    loaded = true;
+                    return;
+                }
+
+                console.log("parsing url")
+
+                var queryString = window.location.search;
+                urlParams = new URLSearchParams(queryString);
+
+                if (urlParams.has('mode'))
+                {
+                    mode = urlParams.get('mode');
+                    console.log("Found mode " + mode)
+                }
+
+                if (urlParams.has('club'))
+                {
+                    selectClub(urlParams.get('club'))
+                    console.log("Found club " + selectedClub)
+                }
+                
+                if (urlParams.has('users'))
+                {
+                    var userIDs = urlParams.get('users').split(',');
+                    console.log("Found users " + userIDs);
+                    userIDs.forEach( (userID, index) => selectUser(userID));
+                }
+            }
 
             $(document).ready( function() {
               $.get(apiGetUsers, function ( data ) {
@@ -42,6 +92,8 @@
                 $.each(data, function(i, p) {
                     $('#selectUser').append($('<option></option>').val(p.userID).html(p.name));
                 });
+
+                parseUrl();
               });
               
               $.get(apiGetClubs, function ( data ) {
@@ -50,21 +102,36 @@
                 $.each(data, function(i, p) {
                     $('#selectClub').append($('<option></option>').val(p.clubID).html(p.name));
                 });
+
+                parseUrl();
               });
             });
 
             function clubSelected(selector) {
                 var clubID = parseInt(selector.options[selector.selectedIndex].value);
-                if  (clubID  == -1 || clubID == selectedClub)
+                if  (clubID  == -1)
                 {
                     selector.selectedIndex = 0;
                     return;
                 }
 
+                selectClub(clubID);
+                urlParams.set("club", clubID);
+                urlParamsUpdated();
+            }
+
+            function selectClub(clubID) {
+                if  (clubID == selectedClub)
+                {
+                    return;
+                }
+
+                $('#selectClub')[0].value = clubID;
                 selectedClub = clubID;
                 userData = {}
                 selectedUserIDs.forEach( (userID, index) => getDataForUser(userID));
             }
+            
 
             function userSelected(selector) {
                 var userID = parseInt(selector.options[selector.selectedIndex].value);
@@ -74,20 +141,26 @@
                     return;
                 }
                 
+                selectUser(userID);
+            }
+
+            function selectUser(userID)
+            {
+                $('#selectUser')[0].selectedIndex = 0;
                 var index = selectedUserIDs.indexOf(userID);
                 if (index != -1)
                 {
-                    selector.selectedIndex = 0;
                     return;
                 }
 
                 selectedUserIDs.push(userID);
-                selector.selectedIndex = 0;
 
                 var name = users[userID].name;
                 $('#selectedUsers').append($('<div></div>').attr("UserID",userID).attr("onclick","removeUser(this)").html(name));
 
                 getDataForUser(userID);
+                urlParams.set("users", selectedUserIDs.join(','));
+                urlParamsUpdated();
             }
 
             function modeSelected(selector) {
@@ -99,6 +172,8 @@
                 
                 mode = newMode;
                 dataUpdated();
+                urlParams.set("mode", mode);
+                urlParamsUpdated();
             }
 
             function getDataForUser(userID)
