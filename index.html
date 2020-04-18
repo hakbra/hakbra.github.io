@@ -4,24 +4,23 @@
             select {width: 300;}
 
             #selectors {
-                background-color: aqua;
             }
 
             #selectedUsers {
-                background-color:chocolate;
             }
 
             #input {
-                background-color:darkslateblue;
-                float: left;
             }
-
-            #graph {
-                background-color:cornflowerblue;
+            
+            #chart-container {
+                width: 400px;
+                height:400px;
                 float: left;
             }
         </style>
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.3/dist/Chart.min.js"></script>
         <script type="text/javascript">
             var apiGetUsers = "https://turotrackerfetcher.azurewebsites.net/api/users?code=W0cY9erJuRhGLxSra7jDufItw6SRNnkPaHCw7pzmnLrRO9xa2Uln2w==";
             var apiGetClubs = "https://turotrackerfetcher.azurewebsites.net/api/clubs?code=15OpgjQl5HA4uYALGRZxvc7peWwBIjdHe32wJtD3ASRkgAiFRzKqfA==";
@@ -33,7 +32,9 @@
             var clubs = {};
 
             var data = {};
-            var mode = 1; 
+            var mode = 1;
+
+            var graph = null;
 
             $(document).ready( function() {
               $.get(apiGetUsers, function ( data ) {
@@ -137,21 +138,50 @@
                     return;
                 }
                 
-                $("#graphTitle").text(clubs[selectedClub].name);
-
-                var graphData = $("#graphData");
-                graphData.empty();
+                var datasets = [];
                 for (var key in data)
                 {
                     var userData = data[key];
                     var userValues;
-                    if (mode == 4) { userValues = userData.map(ud => ud.rankPunches) }
-                    else if (mode == 3) { userValues = userData.map(ud => ud.rankPoints) }
-                    else if (mode == 2) { userValues = userData.map(ud => ud.punches) }
-                    else { userValues = userData.map(ud => {var d = new Date(ud.date); return `${d.getMonth()}.${d.getDate()}:${ud.points}`} ) }
+                    if (mode == 4) { userValues = userData.map(ud => {return {x: ud.date, y: ud.rankPunches}} ) }
+                    else if (mode == 3) { userValues = userData.map(ud => {return {x: ud.date, y: ud.rankPoints}}) }
+                    else if (mode == 2) { userValues = userData.map(ud => {return {x: ud.date, y: ud.punches}}) }
+                    else { userValues = userData.map(ud => {return {x: moment(ud.date), y: ud.points}}) }
 
-                    graphData.append($("<div></div>").attr("userID", key).text(`${users[key].name}: ${userValues.join(', ')}`));
+                    var dataset = {
+                            label: users[key].name,
+                            data : userValues
+                    };
+
+                    console.log(dataset);
+                    datasets.push(dataset);
                 }
+
+                var ctx = document.getElementById('graph').getContext('2d');
+                if (graph != null)
+                {
+                    graph.destroy();
+                }
+
+                graph = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        datasets: datasets
+                    },
+                    options: {
+                        responsive: false,
+                        scales: {
+                            xAxes: [{
+                                type: 'time'
+                            }],
+                            yAxes: [{
+                                ticks: {
+                                    beginAtZero: true
+                                }
+                            }]
+                        }
+                    }
+                });
             }
         </script>
     </head>
@@ -187,11 +217,8 @@
             </div>
         </div>
         
-        <div id="graph">
-            <div id="graphTitle">
-            </div>
-            <div id="graphData">
-            </div>
+        <div id="chartContainer" width="400" height="400">
+            <canvas id="graph"></canvas>
         </div>
     </body>
 </html>
