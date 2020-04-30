@@ -66,8 +66,16 @@ function parseUrl()
 
 $(document).ready( function() {
     $('#selectMode').selectize();
-    $('#selectClub').selectize();
-    $('#selectUser').selectize();
+    $('#selectClub').selectize({
+        onDropdownOpen: function(dropdown) {
+                this.clear(true)
+            }
+    });
+    $('#selectUser').selectize({
+        onDropdownOpen: function(dropdown) {
+                this.clear(true)
+            }
+    });
 
     $.get(apiGetUsers, function ( data ) {
         var select = $('#selectUser')[0].selectize
@@ -93,9 +101,10 @@ $(document).ready( function() {
 
 function clubSelected(selector) {
     var clubID = parseInt(selector.options[selector.selectedIndex].value);
-    if  (clubID  == -1)
+    if  (clubID  == -1 || isNaN(clubID))
     {
-        selector.selectedIndex = 0;
+        console.log("Selected 0")
+        $('#selectClub')[0].selectize.setValue(0, false)
         return;
     }
 
@@ -110,8 +119,9 @@ function selectClub(clubID) {
         return;
     }
 
-    $('#selectClub')[0].value = clubID;
     selectedClub = clubID;
+    $('#selectClub')[0].selectize.setValue(clubID, false)
+
     userData = {}
     selectedUserIDs.forEach( (userID, index) => getDataForUser(userID));
 }
