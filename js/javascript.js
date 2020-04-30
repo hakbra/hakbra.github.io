@@ -193,6 +193,9 @@ function userRemoved(userID)
     selectedUserIDs.splice(index, 1);
     delete data[userID];
     dataUpdated();
+    
+    urlParams.set("users", selectedUserIDs.join(','));
+    urlParamsUpdated();
 }
 
 function legendHandler(e, legendItem)

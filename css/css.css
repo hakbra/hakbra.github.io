@@ -25,5 +25,6 @@
 
     #chartContainer {
         clear: left;
+        width: 100%;
     }
 }
