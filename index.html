@@ -1,34 +1,38 @@
 <html>
     <head>
+        <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.12.6/css/selectize.css">
         <link rel="stylesheet" type="text/css" href="css/css.css">
+
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.3/dist/Chart.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-colorschemes"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.12.6/js/standalone/selectize.min.js"></script>
+
         <script src="js/javascript.js"></script>
     </head>
     <body>
         <div id="selectors">
             <div id="selectClubDiv" class="selectDiv">
                 <select id="selectClub" onchange="clubSelected(this)">
-                    <option Value="0">Total</option>
+                    <option Value="0">Norge</option>
                     <option Value="-1">-----------</option>
                 </select>
             </div>
 
             <div id="selectUserDiv" class="selectDiv">
                 <select id="selectUser" onchange="userSelected(this)">
-                    <option Value="-1">Select Users</option>
+                    <option Value="-1">Legg til deltaker</option>
                     <option Value="-1">------------</option>
                 </select>
             </div>
             
             <div id="selectModeDiv" class="selectDiv">
                 <select id="selectMode" onchange="modeSelected(this)">
-                    <option Value="1">Score</option>
-                    <option Value="2">Punches</option>
-                    <option Value="3">Rank - Score</option>
-                    <option Value="4">Rank - Punches</option>
+                    <option Value="1">Poeng</option>
+                    <option Value="2">Klipp</option>
+                    <option Value="3">Plassering - Poeng</option>
+                    <option Value="4">Plassering - Klipp</option>
                 </select>
             </div>
         </div>

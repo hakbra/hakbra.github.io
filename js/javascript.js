@@ -65,29 +65,35 @@ function parseUrl()
 }
 
 $(document).ready( function() {
-    $.get(apiGetUsers, function ( data ) {
-    data.forEach( (user, index) => users[user.userID] = user);
-    $.each(data, function(i, p) {
-        $('#selectUser').append($('<option></option>').val(p.userID).html(p.name));
-    });
+    $('#selectMode').selectize();
+    $('#selectUser').selectize();
+    $('#selectClub').selectize();
 
-    parseUrl();
+    $.get(apiGetUsers, function ( data ) {
+        var select = $('#selectUser')[0].selectize
+        $.each(data, function(i, user) {
+            users[user.userID] = user;
+            select.addOption({value:user.userID, text:user.name})
+        });
+
+        parseUrl();
     });
     
     $.get(apiGetClubs, function ( data ) {
-    data.forEach( (club, index) => clubs[club.clubID] = club);
-    clubs[0] = {clubID: 0, name: "Total"}
-    $.each(data, function(i, p) {
-        $('#selectClub').append($('<option></option>').val(p.clubID).html(p.name));
-    });
+        var select = $('#selectClub')[0].selectize
+        clubs[0] = {clubID: 0, name: "Norge"}
+        $.each(data, function(i, club) {
+            clubs[club.clubID] = club;
+            select.addOption({value:club.clubID, text:club.name})
+        });
 
-    parseUrl();
+        parseUrl();
     });
 });
 
 function clubSelected(selector) {
     var clubID = parseInt(selector.options[selector.selectedIndex].value);
-    if  (clubID  == -1)
+    if  (clubID  == -1 || clubID == NaN)
     {
         selector.selectedIndex = 0;
         return;
@@ -113,7 +119,7 @@ function selectClub(clubID) {
 
 function userSelected(selector) {
     var userID = parseInt(selector.options[selector.selectedIndex].value);
-    if  (userID  == -1)
+    if  (userID  == -1 || userID == NaN)
     {
         selector.selectedIndex = 0;
         return;
@@ -140,7 +146,7 @@ function selectUser(userID)
 
 function modeSelected(selector) {
     var newMode = parseInt(selector.options[selector.selectedIndex].value);
-    if  (newMode == mode)
+    if  (newMode == mode || newMode == NaN)
     {
         return;
     }
