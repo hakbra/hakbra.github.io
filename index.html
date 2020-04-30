@@ -21,6 +21,7 @@
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.3/dist/Chart.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-colorschemes"></script>
         <script type="text/javascript">
             var apiGetUsers = "https://turotrackerfetcher.azurewebsites.net/api/users?code=W0cY9erJuRhGLxSra7jDufItw6SRNnkPaHCw7pzmnLrRO9xa2Uln2w==";
             var apiGetClubs = "https://turotrackerfetcher.azurewebsites.net/api/clubs?code=15OpgjQl5HA4uYALGRZxvc7peWwBIjdHe32wJtD3ASRkgAiFRzKqfA==";
@@ -38,6 +39,8 @@
             var graph = null;
 
             var urlParams = null;
+
+            var default_colors = ['#3366CC','#DC3912','#FF9900','#109618','#990099','#3B3EAC','#0099C6','#DD4477','#66AA00','#B82E2E','#316395','#994499','#22AA99','#AAAA11','#6633CC','#E67300','#8B0707','#329262','#5574A6','#3B3EAC']
 
             function urlParamsUpdated()
             {
@@ -155,9 +158,6 @@
 
                 selectedUserIDs.push(userID);
 
-                var name = users[userID].name;
-                $('#selectedUsers').append($('<div></div>').attr("UserID",userID).attr("onclick","removeUser(this)").html(name));
-
                 getDataForUser(userID);
                 urlParams.set("users", selectedUserIDs.join(','));
                 urlParamsUpdated();
@@ -192,18 +192,35 @@
                 });
             }
 
-            function removeUser(userItem) {
-                var userID = parseInt($(userItem).attr("userid"));
-                
+            function userRemoved(userID)
+            {
                 var index = selectedUserIDs.indexOf(userID);
-                if (index != -1)
+                if (index == -1)
                 {
-                    selectedUserIDs.splice(index, 1);
+                    return
                 }
 
-                userItem.remove();
+                selectedUserIDs.splice(index, 1);
                 delete data[userID];
                 dataUpdated();
+            }
+
+            function legendHandler(e, legendItem)
+            {
+                console.log(legendItem);
+                var userName = legendItem.text;
+                for (key in selectedUserIDs)
+                {
+                    var userID = selectedUserIDs[key]
+                    console.log(userID)
+                    console.log(users[userID].name)
+                    if (users[userID].name == userName)
+                    {
+                        console.log("removing")
+                        userRemoved(userID);
+                        return
+                    }
+                }
             }
 
             function dataUpdated()
@@ -254,6 +271,14 @@
                                     beginAtZero: true
                                 }
                             }]
+                        },
+                        plugins: {
+                            colorschemes: {
+                                scheme: 'brewer.SetTwo8'
+                            }
+                        },
+                        legend: {
+                            onClick: legendHandler
                         }
                     }
                 });
@@ -285,10 +310,6 @@
                         <option Value="4">Rank - Punches</option>
                     </select>
                 </div>
-            </div>
-
-            <div id="selectedUsers">
-                Selected Users:
             </div>
         </div>
         
