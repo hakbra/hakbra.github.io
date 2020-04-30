@@ -62,14 +62,14 @@ function parseUrl()
 
     if (urlParams.has('mode'))
     {
-        mode = urlParams.get('mode');
         console.log("Found mode " + mode)
+        selectMode(urlParams.get('mode'))
     }
 
     if (urlParams.has('club'))
     {
-        selectClub(urlParams.get('club'))
         console.log("Found club " + selectedClub)
+        selectClub(urlParams.get('club'))
     }
     
     if (urlParams.has('users'))
@@ -169,17 +169,23 @@ function selectUser(userID)
     urlParamsUpdated();
 }
 
-function modeSelected(selector) {
-    var newMode = parseInt(selector.options[selector.selectedIndex].value);
-    if  (newMode == mode || newMode == NaN)
+function selectMode(newMode)
+{
+    if (newMode == mode || isNaN(newMode))
     {
         return;
     }
-    
+
     mode = newMode;
+    $('#selectMode')[0].selectize.setValue(newMode, false);
     dataUpdated();
     urlParams.set("mode", mode);
     urlParamsUpdated();
+}
+
+function modeSelected(selector) {
+    var newMode = parseInt(selector.options[selector.selectedIndex].value);
+    selectMode(newMode)
 }
 
 function getDataForUser(userID)
@@ -273,6 +279,7 @@ function dataUpdated()
                 }
             },
             responsive: true,
+            maintainAspectRatio: false,
             scales: {
                 xAxes: [{
                     type: 'time'

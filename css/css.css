@@ -10,6 +10,7 @@
 
     #chartContainer {
         clear: left;
+        height: 90%;
     }
 }
 
@@ -25,6 +26,6 @@
 
     #chartContainer {
         clear: left;
-        width: 100%;
+        height: 90%;
     }
 }
