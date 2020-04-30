@@ -66,10 +66,10 @@ function parseUrl()
 
 $(document).ready( function() {
     $('#selectMode').selectize({
-        readOnly: true
+        isLocked: true
     });
     $('#selectClub').selectize({
-        readOnly: true
+        isLocked: true
     });
     $('#selectUser').selectize({
         onDropdownOpen: function(dropdown) {
