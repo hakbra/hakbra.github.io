@@ -58,7 +58,7 @@ function parseUrl()
     
     if (urlParams.has('users'))
     {
-        var userIDs = urlParams.get('users').split(',');
+        var userIDs = urlParams.get('users').split(',')
         console.log("Found users " + userIDs);
         userIDs.forEach( (userID, index) => selectUser(userID));
     }
@@ -66,8 +66,8 @@ function parseUrl()
 
 $(document).ready( function() {
     $('#selectMode').selectize();
-    $('#selectUser').selectize();
     $('#selectClub').selectize();
+    $('#selectUser').selectize();
 
     $.get(apiGetUsers, function ( data ) {
         var select = $('#selectUser')[0].selectize
@@ -93,7 +93,7 @@ $(document).ready( function() {
 
 function clubSelected(selector) {
     var clubID = parseInt(selector.options[selector.selectedIndex].value);
-    if  (clubID  == -1 || clubID == NaN)
+    if  (clubID  == -1)
     {
         selector.selectedIndex = 0;
         return;
@@ -105,7 +105,7 @@ function clubSelected(selector) {
 }
 
 function selectClub(clubID) {
-    if  (clubID == selectedClub)
+    if (clubID == selectedClub || isNaN(clubID))
     {
         return;
     }
@@ -119,20 +119,19 @@ function selectClub(clubID) {
 
 function userSelected(selector) {
     var userID = parseInt(selector.options[selector.selectedIndex].value);
-    if  (userID  == -1 || userID == NaN)
+    if (userID  == -1)
     {
-        selector.selectedIndex = 0;
         return;
     }
     
+    $('#selectUser')[0].selectize.setValue(-1, false);
     selectUser(userID);
 }
 
 function selectUser(userID)
 {
-    $('#selectUser')[0].selectedIndex = 0;
     var index = selectedUserIDs.indexOf(userID);
-    if (index != -1)
+    if (index != -1 || isNaN(userID))
     {
         return;
     }
