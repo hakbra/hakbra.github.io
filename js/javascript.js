@@ -65,11 +65,11 @@ function parseUrl()
 }
 
 $(document).ready( function() {
-    $('#selectMode').selectize();
+    $('#selectMode').selectize({
+        readOnly: true
+    });
     $('#selectClub').selectize({
-        onDropdownOpen: function(dropdown) {
-                this.clear(true)
-            }
+        readOnly: true
     });
     $('#selectUser').selectize({
         onDropdownOpen: function(dropdown) {
@@ -193,7 +193,7 @@ function userRemoved(userID)
     selectedUserIDs.splice(index, 1);
     delete data[userID];
     dataUpdated();
-    
+
     urlParams.set("users", selectedUserIDs.join(','));
     urlParamsUpdated();
 }
