@@ -1,0 +1,29 @@
+@media (orientation: landscape) {
+    select {
+        width: 100%;
+    }
+
+    .selectDiv {
+        float: left;
+        width: 33%;
+    }
+
+    #chartContainer {
+        clear: left;
+    }
+}
+
+@media (orientation: portrait) {
+    select {
+        width: 100%;
+    }
+
+    .selectDiv {
+        clear: left;
+        width: 100%;
+    }
+
+    #chartContainer {
+        clear: left;
+    }
+}
