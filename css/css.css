@@ -5,7 +5,7 @@
 
     .selectDiv {
         float: left;
-        width: 33%;
+        width:  calc(100%  /3);
     }
 
     #chartContainer {
@@ -28,4 +28,16 @@
         clear: left;
         height: 90%;
     }
+}
+
+#header {
+    color: white;
+    text-align: center;
+    font-size: 3em;
+    font-weight: bold;
+    font-family: Arial, Helvetica, sans-serif;
+
+    background-color: #f76d1c;
+    padding-top: 0.3em;
+    padding-bottom: 0.3em;
 }
