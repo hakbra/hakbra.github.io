@@ -25,21 +25,27 @@ var clubs = {};
 
 var data = {};
 var mode = 1;
-var loaded = false;
+
+var usersLoaded = false;
+var clubsLoaded = false;
 
 var graph = null;
 
-var urlParams = null;
+var urlParams = new URLSearchParams(window.location.search);
 
-var default_colors = ['#3366CC','#DC3912','#FF9900','#109618','#990099','#3B3EAC','#0099C6','#DD4477','#66AA00','#B82E2E','#316395','#994499','#22AA99','#AAAA11','#6633CC','#E67300','#8B0707','#329262','#5574A6','#3B3EAC']
-
-function urlParamsUpdated()
+function onLoad()
 {
-    if (urlParams == null)
+    if (!usersLoaded || !clubsLoaded)
     {
         return;
     }
 
+    console.log("done loading")
+    parseUrl();
+}
+
+function urlParamsUpdated()
+{
     var loc = window.location;
     var url = `${loc.origin}${loc.pathname}?${urlParams.toString()}`
     console.log(url)
@@ -48,17 +54,7 @@ function urlParamsUpdated()
 
 function parseUrl()
 {
-    if (!loaded)
-    {
-        console.log("data not loaded")
-        loaded = true;
-        return;
-    }
-
     console.log("parsing url")
-
-    var queryString = window.location.search;
-    urlParams = new URLSearchParams(queryString);
 
     if (urlParams.has('mode'))
     {
@@ -80,6 +76,11 @@ function parseUrl()
     }
 }
 
+function delay(time, func)
+{
+    setTimeout(func, time)
+}
+
 $(document).ready( function() {
     $('#selectMode').selectize({
         plugins: ['hidden_textfield']
@@ -90,28 +91,44 @@ $(document).ready( function() {
     $('#selectUser').selectize({
         onDropdownOpen: function(dropdown) {
                 this.clear(true)
-            }
+        }
     });
+
+    var select = $('#selectUser')[0].selectize
+    select.setTextboxValue("Loading...")
+    
+    var select = $('#selectClub')[0].selectize
+    select.setTextboxValue("Loading...")
 
     $.get(apiGetUsers, function ( data ) {
         var select = $('#selectUser')[0].selectize
+        select.clearOptions();
+        select.addOption({value: -1, text:"Legg til deltaker"})
+        select.addOption({value: -1, text:"------------"})
         $.each(data, function(i, user) {
             users[user.userID] = user;
             select.addOption({value:user.userID, text:user.name})
         });
+        select.setValue(-1, true);
 
-        parseUrl();
+        usersLoaded = true;
+        onLoad();
     });
     
     $.get(apiGetClubs, function ( data ) {
-        var select = $('#selectClub')[0].selectize
         clubs[0] = {clubID: 0, name: "Norge"}
+        var select = $('#selectClub')[0].selectize
+        select.clearOptions();
+        select.addOption({value: 0, text:"Norge"})
+        select.addOption({value: -1, text:"------------"})
         $.each(data, function(i, club) {
             clubs[club.clubID] = club;
             select.addOption({value:club.clubID, text:club.name})
         });
+        select.setValue(0, true);
 
-        parseUrl();
+        clubsLoaded = true;
+        onLoad();
     });
 });
 
@@ -237,20 +254,15 @@ function legendHandler(e, legendItem)
 
 function dataUpdated()
 {
-    if  (selectedClub == null)
-    {
-        return;
-    }
-    
     var datasets = [];
     for (var key in data)
     {
         var userData = data[key];
         var userValues;
-        if (mode == 4) { userValues = userData.map(ud => {return {x: ud.date, y: ud.rankPunches}} ) }
-        else if (mode == 3) { userValues = userData.map(ud => {return {x: ud.date, y: ud.rankPoints}}) }
-        else if (mode == 2) { userValues = userData.map(ud => {return {x: ud.date, y: ud.punches}}) }
-        else { userValues = userData.map(ud => {return {x: moment(ud.date), y: ud.points}}) }
+        if (mode == 4) { userValues = userData.map(ud => {return {x: ud.date, y: ud.rankPunches, label: ud.rankPunches + "."}} ) }
+        else if (mode == 3) { userValues = userData.map(ud => {return {x: ud.date, y: ud.rankPoints, label: ud.rankPoints + "."}}) }
+        else if (mode == 2) { userValues = userData.map(ud => {return {x: ud.date, y: ud.punches, label: ud.punches}}) }
+        else { userValues = userData.map(ud => {return {x: moment(ud.date), y: ud.points, label: ud.points}}) }
 
         var dataset = {
                 label: users[key].name,
@@ -293,6 +305,14 @@ function dataUpdated()
             plugins: {
                 colorschemes: {
                     scheme: 'brewer.SetTwo8'
+                },
+                datalabels: {
+                    display: 'auto',
+                    align: 'top',
+                    textStrokeColor: 'white',
+                    font: {
+                        weight: 'bold'
+                    }
                 }
             },
             legend: {
