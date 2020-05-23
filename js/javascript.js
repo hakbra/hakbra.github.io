@@ -285,6 +285,12 @@ function dataUpdated()
             datasets: datasets
         },
         options: {
+            layout: {
+                padding: {
+                    left: 20,
+                    right: 20
+                }
+            },
             elements: {
                 line: {
                     tension: 0
@@ -307,12 +313,20 @@ function dataUpdated()
                     scheme: 'brewer.SetTwo8'
                 },
                 datalabels: {
-                    display: 'auto',
+                    display: function(context) {
+                        if (context.dataset.data.length == (context.dataIndex + 1))
+                        {
+                            return true
+                        }
+
+                        return 'auto'
+                    },
                     align: 'top',
                     textStrokeColor: 'white',
                     font: {
                         weight: 'bold'
-                    }
+                    },
+                    clip: false
                 }
             },
             legend: {

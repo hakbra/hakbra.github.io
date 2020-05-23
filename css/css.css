@@ -1,33 +1,28 @@
 @media (orientation: landscape) {
-    select {
-        width: 100%;
-    }
-
     .selectDiv {
         float: left;
         width:  calc(100%  /3);
     }
-
-    #chartContainer {
-        clear: left;
-        height: 70%;
-    }
 }
 
 @media (orientation: portrait) {
-    select {
-        width: 100%;
-    }
-
     .selectDiv {
         clear: left;
         width: 100%;
     }
+}
 
-    #chartContainer {
-        clear: left;
-        height: 70%;
-    }
+select {
+    width: 100%;
+}
+
+#chartContainer {
+    clear: left;
+    height: 70%;
+    width: 95%;
+    padding-top: 1em;
+    padding-bottom: 1em;
+    margin: auto;
 }
 
 #header {
@@ -40,4 +35,15 @@
     background-color: #f76d1c;
     padding-top: 0.3em;
     padding-bottom: 0.3em;
+}
+
+#footer {
+    color: white;
+    background-color: #f76d1c;
+    padding-top: 0.3em;
+    padding-bottom: 0.3em;
+    font-family: Arial, Helvetica, sans-serif;
+    position: fixed;
+    bottom: 0;
+    left: 0;
 }
