@@ -10,6 +10,10 @@
         clear: left;
         width: 100%;
     }
+
+    #footer {
+        display: hidden;
+    }
 }
 
 select {
@@ -19,7 +23,6 @@ select {
 #chartContainer {
     clear: left;
     height: 70%;
-    width: 95%;
     padding-top: 1em;
     padding-bottom: 1em;
     margin: auto;

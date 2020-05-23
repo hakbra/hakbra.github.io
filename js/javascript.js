@@ -298,7 +298,7 @@ function dataUpdated()
         options: {
             layout: {
                 padding: {
-                    left: 20,
+                    left: 10,
                     right: 20
                 }
             },
