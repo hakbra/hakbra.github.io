@@ -16,6 +16,7 @@ Selectize.define('hidden_textfield', function(options) {
 
 var apiGetUsers = "https://turotrackerfetcher.azurewebsites.net/api/users?code=W0cY9erJuRhGLxSra7jDufItw6SRNnkPaHCw7pzmnLrRO9xa2Uln2w==";
 var apiGetClubs = "https://turotrackerfetcher.azurewebsites.net/api/clubs?code=15OpgjQl5HA4uYALGRZxvc7peWwBIjdHe32wJtD3ASRkgAiFRzKqfA==";
+var apiGetStats = "https://turotrackerfetcher.azurewebsites.net/api/stats?code=CfEAbaShDafw1Kzt3dyZjI8fG7AM3kpsg6jb5NyZ4ikS1J76rru9xA==";
 
 var selectedUserIDs = [];
 var selectedClub = 0;
@@ -95,10 +96,10 @@ $(document).ready( function() {
     });
 
     var select = $('#selectUser')[0].selectize
-    select.setTextboxValue("Loading...")
+    select.setTextboxValue("Laster deltakere...")
     
     var select = $('#selectClub')[0].selectize
-    select.setTextboxValue("Loading...")
+    select.setTextboxValue("Laster arrangører...")
 
     $.get(apiGetUsers, function ( data ) {
         var select = $('#selectUser')[0].selectize
@@ -113,6 +114,15 @@ $(document).ready( function() {
 
         usersLoaded = true;
         onLoad();
+        
+        $.get(apiGetStats, function ( data ) {
+            console.log(data)
+            var userStrs = data.map(stats => users[stats.userID].name + " [" + stats.score + "]");
+            var userIds = data.map(stats => stats.userID)
+            var link = "index.html?users=" + userIds.join(",") + "&mode=2"
+            var str = "<a href=\"" + link + "\">Flest klipp siste 5 dager</a>: " + userStrs.join(", ")
+            $('#footer').html(str)
+        });
     });
     
     $.get(apiGetClubs, function ( data ) {
@@ -266,7 +276,8 @@ function dataUpdated()
 
         var dataset = {
                 label: users[key].name,
-                data : userValues
+                data : userValues,
+                fill: false
         };
 
         console.log(dataset);
