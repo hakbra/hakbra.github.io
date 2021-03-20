@@ -311,7 +311,10 @@ function dataUpdated()
             maintainAspectRatio: false,
             scales: {
                 xAxes: [{
-                    type: 'time'
+                    type: 'time',
+                    ticks: {
+                        source: 'data'
+                    }
                 }],
                 yAxes: [{
                     ticks: {
